@@ -1,0 +1,16 @@
+[
+    { "country": "Cayman Islands", "value": 18.2, "adj_value": 28.30464 },
+    { "country": "Haiti", "value": 129.9, "adj_value": 202.02048 },
+    {
+        "country": "Dominican Republic",
+        "value": 3398.9,
+        "adj_value": 5285.96928
+    },
+    { "country": "Anguilla", "value": 0, "adj_value": 0 },
+    {
+        "country": "British Virgin Islands",
+        "value": 11.2,
+        "adj_value": 17.41824
+    },
+    { "country": "St Kitts and Nevis", "value": 22.3, "adj_value": 34.68096 }
+]
