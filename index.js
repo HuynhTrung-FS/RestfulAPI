@@ -15,8 +15,8 @@ const app = express();
 const port = 8080;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const userRouter = require('./people/routes');
-const userClasses = require('./users/routes');
+const userJSON = require('./people/routes');
+const userDB = require('./users/routes');
 // app.get('/',(req,res)=>{
 //     res.send(`hello world`);
 // })
@@ -38,8 +38,8 @@ const userClasses = require('./users/routes');
 //     res.send('hello world')
 // })
 
-app.use('/v1/people', userRouter);
-app.use('/v1/users', userClasses);
+app.use('/v1/people', userJSON);
+app.use('/v1/users', userDB);
 app.listen(port, () => {
     console.log(`app listening on port ${port}`);
 });

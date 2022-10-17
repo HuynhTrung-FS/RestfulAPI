@@ -1,4 +1,4 @@
-const { json } = require('express');
+const { json, query } = require('express');
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
@@ -8,7 +8,7 @@ const output = require('./output.json');
 let cachedData;
 let cacheTime;
 
-//Tạo file json với tên là output.js
+//Tạo file json với tên là output.json
 router.post('/', (req, res) => {
     const body = req.body;
     console.log('TYPE BODY: ', typeof body);
@@ -21,21 +21,31 @@ router.post('/', (req, res) => {
         console.log('WRITE FILE SUCCESS');
     });
 });
-//Lọc theo country trong file output.js
-router.get('/filters', (req, res) => {
-    const query = req.query;
-    const country = query.country;
-    const filterCountries = output.filter((e) => {
-        if (e.country === country) {
-            return true;
-        } else {
-            return false;
-        }
-    });
-    console.log('Query: ', query);
-    res.send(filterCountries);
-});
-//Lấy tất cả phần tử trong file output.js
+//Thêm 1 phần từ person mới vào file output.json
+router.post('/addPerson',(req,res) => {
+    const body = req.body;
+    const name = body.name;
+    const age = Number(body.age);
+    let person = {
+        name : name,
+        age : age
+    };
+    var dataPerson = fs.readFileSync(`${__dirname}/output.json`);
+    var dataFile = JSON.parse(dataPerson);
+    dataFile.push(person);
+    console.log('Add Person ' + person.name + '_' + person.age + ' Success');
+    fs.writeFile(
+        `${__dirname}/output.json`,
+        JSON.stringify(dataFile),
+        (err) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+        },
+    );
+})
+//Lấy tất cả phần tử person trong file output.js
 router.get('/', (req, res) => {
     if (cacheTime && cacheTime > Date.now() - 30 * 1000) {
         return res.send(cachedData);
@@ -46,36 +56,87 @@ router.get('/', (req, res) => {
         cacheTime = Date.now();
         data.cacheTime = cacheTime;
         res.send(data);
+        console.log('READ FILE SUCCESS');
     });
     // res.send(output);
 });
-//Xoá phần tử country
+// //Lấy phần tử theo param trong file output.js
+// router.get('/:name',(req,res) => {
+//     const name = req.params.name;
+//     const filterPerson = output.filter((e)=>{
+//         if(e.name === name) {
+//             return true;
+//         }else{
+//             return false;
+//         }
+//     });
+//     console.log('Query ',name);
+//     res.send(filterPerson);
+// });
+//Lọc và lấy person theo name trong file output.js
+router.get('/filters', (req, res) => {
+    const query = req.query;
+    const name = query.name;
+    const filterPerson = output.filter((e) => {
+        if (e.name === name) {
+            return true;
+        } else {
+            return false;
+        }
+    });
+    console.log('Query: ', query);
+    res.send(filterPerson);
+});
+//Xoá phần tử Person theo name
 router.delete('/delete', (req, res) => {
     const query = req.query;
-    const country = query.country;
+    const name = query.name;
 
     fs.readFile(`${__dirname}/output.json`, (err, data) => {
         dataFile = JSON.parse(data);
-        const deleteCountry = dataFile.filter((e) => {
-            if (!e.country.includes(country)) {
+        const deletePerson = dataFile.filter((e) => {
+            if (!e.name.includes(name)) {
                 return true;
             } else {
                 return false;
             }
         });
-        console.log(deleteCountry);
+        console.log(deletePerson);
         fs.writeFile(
             `${__dirname}/output.json`,
-            JSON.stringify(deleteCountry),
+            JSON.stringify(deletePerson),
             (err) => {
                 if (err) {
                     console.error(err);
                     return;
                 }
-                console.log('DELETE ' + country + ' SUCCESS');
             },
         );
     });
+});
+//Sửa name của Person 
+router.put('/:name',(req,res) => {
+    const name = req.params.name;
+    const body = req.body;
+    const newName = body.name;
+    var dataPerson = fs.readFileSync(`${__dirname}/output.json`);
+    var dataFile = JSON.parse(dataPerson);
+    var dataPick = dataFile.filter((e) => {
+        if(e.name === name) {
+            e.name = newName;
+        }
+        return true;
+    });
+    fs.writeFile(
+        `${__dirname}/output.json`,
+        JSON.stringify(dataPick),
+        (err) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+        },
+    );
 });
 // pageNumber and pageSize
 router.get('/info', paginatedResults(output), (req, res) => {
