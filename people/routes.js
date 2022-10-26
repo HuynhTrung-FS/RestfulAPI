@@ -77,7 +77,9 @@ router.get('/', (req, res) => {
 router.get('/filters', (req, res) => {
     const query = req.query;
     const name = query.name;
-    const filterPerson = output.filter((e) => {
+    var dataPerson = fs.readFileSync(`${__dirname}/output.json`);
+    var dataFile = JSON.parse(dataPerson);
+    const filterPerson = dataFile.filter((e) => {
         if (e.name === name) {
             return true;
         } else {
